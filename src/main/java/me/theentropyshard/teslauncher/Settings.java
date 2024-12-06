@@ -32,7 +32,7 @@ import java.nio.file.Path;
  */
 public class Settings {
     public String language = "english";
-    public boolean darkTheme = false;
+    public boolean darkTheme = true;
     public String lastDir = System.getProperty("user.dir");
     public boolean useDownloadDialog = true;
     public String lastInstanceGroup = "<default>";
@@ -48,16 +48,6 @@ public class Settings {
     }
 
     public static Settings load(Path file) {
-        if (!Files.exists(file)) {
-            return new Settings();
-        }
-
-        try {
-            return Json.parse(FileUtils.readUtf8(file), Settings.class);
-        } catch (IOException e) {
-            Log.error("Could not load settings from" + file + ", using defaults", e);
-        }
-
         return new Settings();
     }
 
