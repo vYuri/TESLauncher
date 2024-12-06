@@ -33,7 +33,7 @@ description = 'TESLauncher'
 
 def theMainClass = 'me.theentropyshard.teslauncher.Main'
 def theVersion = project.version.toString()
-def theName = project.name
+def theName = 'ScreamingLAB'
 def theBuildDir = layout.buildDirectory.asFile.get().absolutePath
 
 repositories {
