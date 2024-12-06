@@ -26,25 +26,19 @@ import javax.swing.*;
 import java.awt.*;
 
 public class AddAccountDialog extends AppDialog {
-    private final OfflineAccountCreationView offlineView;
     private final MicrosoftAccountCreationView microsoftView;
 
-    public AddAccountDialog(AccountsView accountsView) {
-        super(TESLauncher.frame, "Add new account");
+    public AddAccountDialog() {
+        super(TESLauncher.frame, "Añadir cuenta");
 
         JPanel root = new JPanel(new BorderLayout());
 
         JTabbedPane viewSelector = new JTabbedPane(JTabbedPane.TOP);
         viewSelector.putClientProperty("JTabbedPane.tabAreaAlignment", "fill");
 
-        this.offlineView = new OfflineAccountCreationView(this, accountsView);
-        viewSelector.addTab("Offline", this.offlineView);
-
-        this.microsoftView = new MicrosoftAccountCreationView(this, accountsView);
+        this.microsoftView = new MicrosoftAccountCreationView(this);
         viewSelector.addTab("Microsoft", this.microsoftView);
-
-        root.add(viewSelector, BorderLayout.CENTER);
-        //root.setPreferredSize(new Dimension(450, 270));
+        root.add(this.microsoftView);
 
         this.setResizable(false);
         this.setContent(root);
