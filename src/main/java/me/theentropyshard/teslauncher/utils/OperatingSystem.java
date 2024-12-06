@@ -23,6 +23,7 @@ import me.theentropyshard.teslauncher.logging.Log;
 
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
@@ -75,24 +76,41 @@ public enum OperatingSystem {
         }
     }
 
-    public static void browse(String uri) {
+    public static boolean browse(String uri) {
         if (Desktop.isDesktopSupported()) {
             Desktop desktop = Desktop.getDesktop();
 
             if (desktop.isSupported(Desktop.Action.BROWSE)) {
                 try {
                     desktop.browse(URI.create(uri));
+                    return true;
                 } catch (IllegalArgumentException e) {
                     Log.warn("URI cannot be converted to URL: " + uri);
+                    return false;
                 } catch (IOException e) {
                     Log.warn("Unable to browse '" + uri + "' using java.awt.Desktop: " + e.getMessage());
+                    return false;
                 }
             } else {
                 Log.warn("Unable to browse '" + uri + "' using java.awt.Desktop: action 'BROWSE' not supported");
+                return false;
             }
         } else {
             Log.warn("java.awt.Desktop not supported. OS: " + OperatingSystem.getCurrent());
+            return false;
         }
+    }
+
+    public static void pasteCurrentCopy() throws AWTException {
+        Robot robot = new Robot();
+        // Press Ctrl
+        robot.keyPress(KeyEvent.VK_CONTROL);
+        // Press S
+        robot.keyPress(KeyEvent.VK_V);
+        // Release S
+        robot.keyRelease(KeyEvent.VK_V);
+        // Release Ctrl
+        robot.keyRelease(KeyEvent.VK_CONTROL);
     }
 
     public static boolean isWindows() {
