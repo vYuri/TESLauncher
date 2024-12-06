@@ -20,37 +20,33 @@ package me.theentropyshard.teslauncher.gui;
 
 import com.formdev.flatlaf.FlatLaf;
 import me.theentropyshard.teslauncher.TESLauncher;
-import me.theentropyshard.teslauncher.gui.components.InstanceItem;
-import me.theentropyshard.teslauncher.gui.console.LauncherConsole;
+import me.theentropyshard.teslauncher.gui.dialogs.addaccount.AddAccountDialog;
 import me.theentropyshard.teslauncher.gui.laf.DarkLauncherLaf;
-import me.theentropyshard.teslauncher.gui.laf.LightLauncherLaf;
+import me.theentropyshard.teslauncher.gui.utils.MessageBox;
 import me.theentropyshard.teslauncher.gui.utils.SwingUtils;
-import me.theentropyshard.teslauncher.gui.view.AboutView;
-import me.theentropyshard.teslauncher.gui.view.SettingsView;
-import me.theentropyshard.teslauncher.gui.view.accountsview.AccountItem;
 import me.theentropyshard.teslauncher.gui.view.accountsview.AccountsView;
-import me.theentropyshard.teslauncher.gui.view.accountsview.AddAccountItem;
-import me.theentropyshard.teslauncher.gui.view.playview.InstancesPanel;
 import me.theentropyshard.teslauncher.gui.view.playview.PlayView;
-import me.theentropyshard.teslauncher.utils.OperatingSystem;
+import me.theentropyshard.teslauncher.minecraft.account.Account;
+import me.theentropyshard.teslauncher.minecraft.account.AccountManager;
+import me.theentropyshard.teslauncher.minecraft.account.AccountStorage;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
+import java.io.IOException;
 
 public class Gui {
     private final JTabbedPane viewSelector;
     private final JFrame frame;
-    private final JPanel bottomPanel;
+
+    public final JButton accountButton;
 
     private PlayView playView;
     private AccountsView accountsView;
 
     private boolean darkTheme;
-    private boolean initialized;
-
-    private boolean consoleOpen;
 
     public Gui(String title, boolean darkTheme) {
         this.darkTheme = darkTheme;
@@ -60,123 +56,99 @@ public class Gui {
 
         FlatLaf.registerCustomDefaultsSource("themes");
 
-        this.switchTheme();
+        DarkLauncherLaf.setup();
 
-        this.viewSelector = new JTabbedPane(JTabbedPane.LEFT);
+        this.viewSelector = new JTabbedPane(JTabbedPane.RIGHT);
 
         TESLauncher.frame = this.frame = new JFrame(title);
-        this.frame.add(this.viewSelector, BorderLayout.CENTER);
 
-        this.bottomPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 3, 5));
-        this.bottomPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, UIManager.getColor("Component.borderColor")));
+        JPanel accountPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel playPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        playPanel.setBorder(new EmptyBorder(16, 16, 16, 16));
+        playPanel.setLayout(new GridBagLayout());
 
-        JButton openFolderButton = new JButton("Open launcher folder");
-        openFolderButton.addActionListener(e -> {
-            OperatingSystem.open(TESLauncher.getInstance().getWorkDir());
-        });
-        this.bottomPanel.add(openFolderButton);
+        AccountManager accountManager = TESLauncher.getInstance().getAccountManager();
 
-        LauncherConsole console = new LauncherConsole();
-        LauncherConsole.instance = console;
-
-        JButton consoleButton = new JButton(this.consoleOpen ? "Hide console" : "Show console");
-        consoleButton.addActionListener(e -> {
-            this.consoleOpen = !this.consoleOpen;
-            consoleButton.setText(this.consoleOpen ? "Hide console" : "Show console");
-            console.setVisible(this.consoleOpen);
-        });
-
-        console.addWindowListener(new WindowAdapter() {
+        this.accountButton = new JButton(accountManager.getCurrentAccount() == null ? "Añadir cuenta" : accountManager.getCurrentAccount().getUsername());
+        accountButton.setFocusable(false);
+        accountButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        accountButton.setPreferredSize(new Dimension(250, 55));
+        accountButton.setFont(new Font("Arial", Font.PLAIN, 24));
+        accountButton.addActionListener(new ActionListener() {
             @Override
-            public void windowClosing(WindowEvent e) {
-                Gui.this.consoleOpen = !Gui.this.consoleOpen;
-                consoleButton.setText(Gui.this.consoleOpen ? "Hide console" : "Show console");
+            public void actionPerformed(ActionEvent e) {
+                if (accountManager.getCurrentAccount() == null) {
+                    new AddAccountDialog();
+                }
             }
         });
 
-        this.bottomPanel.add(consoleButton);
+        JButton deleteButton = getDeleteButton();
 
-        this.frame.add(this.bottomPanel, BorderLayout.SOUTH);
+        JButton playButton = new JButton("JUGAR");
+        playButton.setFocusable(false);
+        playButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        playButton.setPreferredSize(new Dimension((int) (TESLauncher.WIDTH * 0.3), (int) (TESLauncher.HEIGHT * 0.15)));
+        playButton.setFont(new Font("Arial", Font.PLAIN, 55));
+
+        accountPanel.add(accountButton);
+        if (accountManager.getCurrentAccount() != null) {
+            accountPanel.add(deleteButton);
+        }
+        playPanel.add(playButton);
+
+        this.frame.add(accountPanel, BorderLayout.NORTH);
+        this.frame.add(playPanel, BorderLayout.CENTER);
 
         this.frame.getContentPane().setPreferredSize(new Dimension(TESLauncher.WIDTH, TESLauncher.HEIGHT));
         this.frame.pack();
         SwingUtils.centerWindow(this.frame, 0);
     }
 
-    public void switchTheme() {
-        if (this.isDarkTheme()) {
-            DarkLauncherLaf.setup();
-        } else {
-            LightLauncherLaf.setup();
-        }
+    @NotNull
+    private JButton getDeleteButton() {
+        JButton deleteButton = new JButton("");
+        deleteButton.setIcon(new ImageIcon("src/main/resources/assets/trash_icon.png"));
+        deleteButton.setFocusable(false);
+        deleteButton.setSize(65, 65);
+        deleteButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Account account = TESLauncher.getInstance().getAccountManager().getCurrentAccount();
+                boolean ok = MessageBox.showConfirmMessage(
+                        TESLauncher.frame,
+                        "Account removal",
+                        "Are you sure that you want to remove account '" + account.getUsername() + "'?"
+                );
 
-        if (!this.initialized) {
-            return;
-        }
+                if (!ok) {
+                    return;
+                }
 
-        this.bottomPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, UIManager.getColor("Component.borderColor")));
+                try {
+                    TESLauncher.getInstance().getAccountManager().removeAccount(account);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
 
-        InstancesPanel defaultInstancesPanel = this.playView.getDefaultInstancesPanel();
+                    MessageBox.showErrorMessage(
+                            TESLauncher.frame,
+                            "Unable to remove account '" + account.getUsername() + "': " + ex.getMessage()
+                    );
+                }
 
-        for (Component component : defaultInstancesPanel.getInstancesPanel().getComponents()) {
-            ((InstanceItem) component).updateColors();
-        }
-
-        for (Component component : this.accountsView.getPanel().getComponents()) {
-            if (component instanceof AccountItem) {
-                ((AccountItem) component).updateColors();
+                accountButton.setName("Añadir cuenta");
+                deleteButton.setVisible(false);
             }
-
-            if (component instanceof AddAccountItem) {
-                ((AddAccountItem) component).updateColors();
-            }
-        }
-
-        defaultInstancesPanel.getScrollPane().setBorder(null);
-        this.playView.getGroups().values().forEach(instancesPanel -> {
-
-            for (Component component : instancesPanel.getInstancesPanel().getComponents()) {
-                ((InstanceItem) component).updateColors();
-            }
-            instancesPanel.getScrollPane().setBorder(null);
         });
-    }
-
-    public void updateLookAndFeel() {
-        this.switchTheme();
-
-        SwingUtilities.updateComponentTreeUI(this.frame);
-        this.frame.pack();
-
-        if (LauncherConsole.instance != null) {
-            JFrame frame = LauncherConsole.instance.getFrame();
-            SwingUtilities.updateComponentTreeUI(frame);
-            frame.pack();
-        }
-
-        InstancesPanel defaultInstancesPanel = this.playView.getDefaultInstancesPanel();
-        defaultInstancesPanel.getScrollPane().setBorder(null);
-
-        this.playView.getGroups().values().forEach(instancesPanel -> {
-            instancesPanel.getScrollPane().setBorder(null);
-        });
-
-        this.accountsView.getScrollPane().setBorder(null);
+        return deleteButton;
     }
 
     public void showGui() {
         SwingUtilities.invokeLater(() -> {
             this.playView = new PlayView();
             this.accountsView = new AccountsView();
-
-            this.viewSelector.addTab("Play", this.playView);
             this.viewSelector.addTab("Accounts", this.accountsView);
-            this.viewSelector.addTab("Settings", new SettingsView());
-            this.viewSelector.addTab("About", new AboutView());
-
             this.frame.setVisible(true);
-
-            this.initialized = true;
         });
     }
 
