@@ -29,7 +29,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 public class MicrosoftAuthenticator {
-    private static final String CLIENT_ID = "394fd08d-cb75-4f21-9807-ae14babcb4c0";
+    private static final String CLIENT_ID = "e1c87e02-118d-46ac-98c4-4794f5a1988e";
     private static final String XBOX_LIVE_SCOPES = "XboxLive.signin offline_access";
     private static final String DEVICE_CODE_URL = "https://login.microsoftonline.com/%s/oauth2/v2.0/devicecode";
     private static final String OAUTH_URL = "https://login.microsoftonline.com/consumers/oauth2/v2.0/token";

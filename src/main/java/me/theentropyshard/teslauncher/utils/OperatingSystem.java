@@ -19,12 +19,14 @@
 package me.theentropyshard.teslauncher.utils;
 
 import com.sun.jna.Platform;
+import com.sun.management.OperatingSystemMXBean;
 import me.theentropyshard.teslauncher.logging.Log;
 
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.net.URI;
 import java.nio.file.Path;
 
@@ -76,6 +78,26 @@ public enum OperatingSystem {
         }
     }
 
+    public static long getTotalRamMemoryAsMegaBytes() {
+        OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
+
+        // Obtener la cantidad total de memoria física (RAM)
+        long totalMemory = osBean.getTotalPhysicalMemorySize();
+        return totalMemory/1024/1024;
+    }
+
+    public static void pasteCurrentCopy() throws AWTException {
+        Robot robot = new Robot();
+        // Press Ctrl
+        robot.keyPress(KeyEvent.VK_CONTROL);
+        // Press S
+        robot.keyPress(KeyEvent.VK_V);
+        // Release S
+        robot.keyRelease(KeyEvent.VK_V);
+        // Release Ctrl
+        robot.keyRelease(KeyEvent.VK_CONTROL);
+    }
+
     public static boolean browse(String uri) {
         if (Desktop.isDesktopSupported()) {
             Desktop desktop = Desktop.getDesktop();
@@ -99,18 +121,6 @@ public enum OperatingSystem {
             Log.warn("java.awt.Desktop not supported. OS: " + OperatingSystem.getCurrent());
             return false;
         }
-    }
-
-    public static void pasteCurrentCopy() throws AWTException {
-        Robot robot = new Robot();
-        // Press Ctrl
-        robot.keyPress(KeyEvent.VK_CONTROL);
-        // Press S
-        robot.keyPress(KeyEvent.VK_V);
-        // Release S
-        robot.keyRelease(KeyEvent.VK_V);
-        // Release Ctrl
-        robot.keyRelease(KeyEvent.VK_CONTROL);
     }
 
     public static boolean isWindows() {

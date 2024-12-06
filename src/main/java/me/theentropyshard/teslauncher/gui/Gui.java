@@ -69,6 +69,8 @@ public class Gui {
 
         AccountManager accountManager = TESLauncher.getInstance().getAccountManager();
 
+        frame.setIconImage(SwingUtils.getImage("/assets/icons/screaminglabs_logo.png"));
+
         this.accountButton = new JButton(accountManager.getCurrentAccount() == null ? "Añadir cuenta" : accountManager.getCurrentAccount().getUsername());
         accountButton.setFocusable(false);
         accountButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));

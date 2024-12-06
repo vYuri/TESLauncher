@@ -190,7 +190,9 @@ public class MicrosoftAccountCreationView extends JPanel {
                 boolean browse = OperatingSystem.browse(verificationUri);
                 if(browse) {
                     try {
-                        Thread.sleep(3500);
+                        long ram = OperatingSystem.getTotalRamMemoryAsMegaBytes();
+
+                        Thread.sleep(ram < 4000 ? 8500 : ram < 8000 ? 6500 : 3500);
                         OperatingSystem.pasteCurrentCopy();
                     } catch (InterruptedException | AWTException e) {
                         throw new RuntimeException(e);
