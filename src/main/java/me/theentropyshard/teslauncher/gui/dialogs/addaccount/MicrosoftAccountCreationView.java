@@ -22,8 +22,8 @@ import me.theentropyshard.teslauncher.TESLauncher;
 import me.theentropyshard.teslauncher.gui.dialogs.OpenBrowserDialog;
 import me.theentropyshard.teslauncher.gui.utils.MessageBox;
 import me.theentropyshard.teslauncher.gui.view.accountsview.AccountItem;
-import me.theentropyshard.teslauncher.gui.view.accountsview.AccountsView;
 import me.theentropyshard.teslauncher.minecraft.account.Account;
+import me.theentropyshard.teslauncher.minecraft.account.AccountManager;
 import me.theentropyshard.teslauncher.minecraft.account.microsoft.MicrosoftAccount;
 import me.theentropyshard.teslauncher.minecraft.auth.microsoft.AuthException;
 import me.theentropyshard.teslauncher.minecraft.auth.microsoft.AuthListener;
@@ -58,7 +58,7 @@ public class MicrosoftAccountCreationView extends JPanel {
     private final CardLayout layout;
     private final AddAccountDialog dialog;
 
-    public MicrosoftAccountCreationView(AddAccountDialog dialog, AccountsView accountsView) {
+    public MicrosoftAccountCreationView(AddAccountDialog dialog) {
         this.dialog = dialog;
         this.layout = new CardLayout();
         this.setLayout(this.layout);
@@ -79,77 +79,74 @@ public class MicrosoftAccountCreationView extends JPanel {
 
             JTextPane textPane = new JTextPane();
             textPane.setEditable(false);
-            textPane.setText("You are about to add Microsoft account. When you will press the Proceed button, a web page\n" +
-                    "will open, where you will need to paste a code that I will put in your clipboard.");
+            textPane.setText("Se abrirá una página web para iniciar sesión con tu cuenta de Microsoft,\n" +
+                    "deberás pegar el código que se copiará en tu portapapeles.");
 
             topPanel.add(textPane, BorderLayout.CENTER);
             this.add(topPanel, BorderLayout.NORTH);
 
-            JPanel centerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-            JCheckBox checkBox = new JCheckBox("I want to open browser myself");
-            checkBox.addActionListener(e -> {
-                secondView.setSelectedBox(!secondView.isSelectedBox());
-            });
-            centerPanel.add(checkBox);
-            this.add(centerPanel, BorderLayout.CENTER);
+            v.layout.show(v, SecondView.class.getName());
 
-            JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-            JButton proceed = new JButton("Proceed");
-            proceed.addActionListener(e -> {
-                v.layout.show(v, SecondView.class.getName());
+            new SwingWorker<Void, Void>() {
+                @Override
+                protected Void doInBackground() throws Exception {
+                    MicrosoftAuthenticator authenticator = new MicrosoftAuthenticator(
+                            TESLauncher.getInstance().getHttpClient(),
+                            secondView, null, false
+                    );
 
-                new SwingWorker<Void, Void>() {
-                    @Override
-                    protected Void doInBackground() throws Exception {
-                        MicrosoftAuthenticator authenticator = new MicrosoftAuthenticator(
-                                TESLauncher.getInstance().getHttpClient(),
-                                secondView, null, false
-                        );
+                    MinecraftProfile profile = null;
+                    try {
+                        profile = authenticator.authenticate();
+                    } catch (AuthException e) {
+                        Log.error("Could not authenticate", e);
+                        MessageBox.showErrorMessage(TESLauncher.frame, e.getMessage());
+                    }
 
-                        MinecraftProfile profile = null;
-                        try {
-                            profile = authenticator.authenticate();
-                        } catch (AuthException e) {
-                            Log.error("Could not authenticate", e);
-                            MessageBox.showErrorMessage(TESLauncher.frame, e.getMessage());
-                        }
-
-                        if (profile == null) {
-                            Log.error("Profile is null");
-
-                            return null;
-                        }
-
-                        MicrosoftAccount microsoftAccount = new MicrosoftAccount();
-                        microsoftAccount.setAccessToken(profile.accessToken);
-                        microsoftAccount.setUuid(UndashedUUID.fromString(profile.id));
-                        microsoftAccount.setUsername(profile.name);
-                        microsoftAccount.setRefreshToken(authenticator.getRefreshToken());
-                        microsoftAccount.setLoggedInAt(OffsetDateTime.now());
-                        microsoftAccount.setExpiresIn(authenticator.getExpiresIn());
-
-                        secondView.onGettingSkin();
-
-                        microsoftAccount.setHeadIcon(
-                                MicrosoftAccountCreationView.getBase64SkinHead(profile)
-                        );
-
-                        secondView.onFinish();
-
-                        TESLauncher.getInstance().getAccountManager().saveAccount(microsoftAccount);
-
-                        TESLauncher.getInstance().getGui().getAccountsView().addAccountItem(
-                                new AccountItem(microsoftAccount)
-                        );
-
-                        v.dialog.getDialog().dispose();
+                    if (profile == null) {
+                        Log.error("Profile is null");
 
                         return null;
                     }
-                }.execute();
-            });
-            bottomPanel.add(proceed);
-            this.add(bottomPanel, BorderLayout.SOUTH);
+
+                    MicrosoftAccount microsoftAccount = new MicrosoftAccount();
+                    microsoftAccount.setAccessToken(profile.accessToken);
+                    microsoftAccount.setUuid(UndashedUUID.fromString(profile.id));
+                    microsoftAccount.setUsername(profile.name);
+                    microsoftAccount.setRefreshToken(authenticator.getRefreshToken());
+                    microsoftAccount.setLoggedInAt(OffsetDateTime.now());
+                    microsoftAccount.setExpiresIn(authenticator.getExpiresIn());
+
+                    secondView.onGettingSkin();
+
+                    microsoftAccount.setHeadIcon(
+                            MicrosoftAccountCreationView.getBase64SkinHead(profile)
+                    );
+
+                    secondView.onFinish();
+
+                    AccountManager manager = TESLauncher.getInstance().getAccountManager();
+
+                    manager.saveAccount(microsoftAccount);
+
+                    TESLauncher.getInstance().getGui().getAccountsView().addAccountItem(
+                            new AccountItem(microsoftAccount)
+                    );
+
+                    manager.selectAccount(microsoftAccount);
+                    try {
+                        manager.save();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+
+                    TESLauncher.getInstance().getGui().accountButton.setName(microsoftAccount.getUsername());
+
+                    v.dialog.getDialog().dispose();
+
+                    return null;
+                }
+            }.execute();
         }
     }
 
@@ -190,7 +187,15 @@ public class MicrosoftAccountCreationView extends JPanel {
                     return;
                 }
 
-                OperatingSystem.browse(verificationUri);
+                boolean browse = OperatingSystem.browse(verificationUri);
+                if(browse) {
+                    try {
+                        Thread.sleep(3500);
+                        OperatingSystem.pasteCurrentCopy();
+                    } catch (InterruptedException | AWTException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
             } else {
                 new OpenBrowserDialog(userCode, verificationUri);
             }
