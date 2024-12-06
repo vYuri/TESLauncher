@@ -53,7 +53,7 @@ public class AccountsView extends JPanel {
 
         this.addAccountItem = new AddAccountItem();
         this.addAccountItem.addMouseClickListener(e -> {
-            new AddAccountDialog(this);
+            new AddAccountDialog();
         });
         this.panel.add(this.addAccountItem);
 
