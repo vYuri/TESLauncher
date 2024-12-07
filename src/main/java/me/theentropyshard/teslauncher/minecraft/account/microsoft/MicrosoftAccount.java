@@ -92,11 +92,6 @@ public class MicrosoftAccount extends Account {
 
         String oldUsername = this.getUsername();
 
-        AccountItem byName = TESLauncher.getInstance().getGui().getAccountsView().getByName(oldUsername);
-        if (byName != null) {
-            byName.getNickLabel().setText(profile.name);
-        }
-
         this.setUsername(profile.name);
 
         this.setRefreshToken(authenticator.getRefreshToken());
