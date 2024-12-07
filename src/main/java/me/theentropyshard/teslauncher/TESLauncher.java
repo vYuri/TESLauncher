@@ -118,7 +118,7 @@ public class TESLauncher {
 
         this.taskPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
-        this.gui = new Gui(BuildConfig.APP_NAME, this.settings.darkTheme);
+        this.gui = new Gui(BuildConfig.APP_NAME);
         this.gui.getFrame().addWindowListener(new WindowClosingListener(e -> TESLauncher.this.shutdown()));
 
         this.gui.showGui();
@@ -164,8 +164,6 @@ public class TESLauncher {
                 Log.error("Exception while saving instance '" + instance + "'", e);
             }
         });
-
-        this.settings.lastInstanceGroup = String.valueOf(this.gui.getPlayView().getModel().getSelectedItem());
 
         this.settings.save(this.settingsFile);
 
