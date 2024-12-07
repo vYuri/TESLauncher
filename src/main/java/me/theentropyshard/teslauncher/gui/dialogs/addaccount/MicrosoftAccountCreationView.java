@@ -22,7 +22,6 @@ import me.theentropyshard.teslauncher.TESLauncher;
 import me.theentropyshard.teslauncher.gui.dialogs.OpenBrowserDialog;
 import me.theentropyshard.teslauncher.gui.utils.MessageBox;
 import me.theentropyshard.teslauncher.gui.utils.SwingUtils;
-import me.theentropyshard.teslauncher.gui.view.accountsview.AccountItem;
 import me.theentropyshard.teslauncher.minecraft.account.Account;
 import me.theentropyshard.teslauncher.minecraft.account.AccountManager;
 import me.theentropyshard.teslauncher.minecraft.account.microsoft.MicrosoftAccount;
@@ -80,6 +79,8 @@ public class MicrosoftAccountCreationView extends JPanel {
 
             JTextPane textPane = new JTextPane();
             textPane.setEditable(false);
+            textPane.setDragEnabled(false);
+            textPane.setFocusable(false);
             textPane.setText("Se abrirá una página web para iniciar sesión con tu cuenta de Microsoft,\n" +
                     "deberás pegar el código que se copiará en tu portapapeles.");
 
@@ -130,10 +131,6 @@ public class MicrosoftAccountCreationView extends JPanel {
 
                     manager.saveAccount(microsoftAccount);
 
-                    TESLauncher.getInstance().getGui().getAccountsView().addAccountItem(
-                            new AccountItem(microsoftAccount)
-                    );
-
                     manager.selectAccount(microsoftAccount);
                     try {
                         manager.save();
@@ -141,10 +138,7 @@ public class MicrosoftAccountCreationView extends JPanel {
                         ex.printStackTrace();
                     }
 
-                    TESLauncher.getInstance().getGui().accountButton.setText(microsoftAccount.getUsername());
                     TESLauncher.getInstance().getGui().accountButton.setIcon(SwingUtils.loadIconFromBase64(manager.getCurrentAccount().getHeadIcon()));
-                    TESLauncher.getInstance().getGui().deleteButton.setVisible(true);
-                    TESLauncher.getInstance().getGui().getFrame().pack();
 
                     v.dialog.getDialog().dispose();
 

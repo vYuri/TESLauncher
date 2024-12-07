@@ -19,14 +19,12 @@
 package me.theentropyshard.teslauncher.gui.dialogs.addaccount;
 
 import me.theentropyshard.teslauncher.TESLauncher;
-import me.theentropyshard.teslauncher.gui.view.accountsview.AccountsView;
 import me.theentropyshard.teslauncher.gui.dialogs.AppDialog;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class AddAccountDialog extends AppDialog {
-    private final MicrosoftAccountCreationView microsoftView;
 
     public AddAccountDialog() {
         super(TESLauncher.frame, "Añadir cuenta");
@@ -36,9 +34,9 @@ public class AddAccountDialog extends AppDialog {
         JTabbedPane viewSelector = new JTabbedPane(JTabbedPane.TOP);
         viewSelector.putClientProperty("JTabbedPane.tabAreaAlignment", "fill");
 
-        this.microsoftView = new MicrosoftAccountCreationView(this);
-        viewSelector.addTab("Microsoft", this.microsoftView);
-        root.add(this.microsoftView);
+        MicrosoftAccountCreationView microsoftView = new MicrosoftAccountCreationView(this);
+        viewSelector.addTab("Microsoft", microsoftView);
+        root.add(microsoftView);
 
         this.setResizable(false);
         this.setContent(root);
