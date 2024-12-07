@@ -42,6 +42,7 @@ public class Gui {
     private final JFrame frame;
 
     public final JButton accountButton;
+    public final JButton deleteButton;
 
     private PlayView playView;
     private AccountsView accountsView;
@@ -81,11 +82,12 @@ public class Gui {
             public void actionPerformed(ActionEvent e) {
                 if (accountManager.getCurrentAccount() == null) {
                     new AddAccountDialog();
+                    System.out.println(accountButton.getHeight());
                 }
             }
         });
 
-        JButton deleteButton = getDeleteButton();
+        this.deleteButton = getDeleteButton();
 
         JButton playButton = new JButton("JUGAR");
         playButton.setFocusable(false);
@@ -93,9 +95,10 @@ public class Gui {
         playButton.setPreferredSize(new Dimension((int) (TESLauncher.WIDTH * 0.3), (int) (TESLauncher.HEIGHT * 0.15)));
         playButton.setFont(new Font("Arial", Font.PLAIN, 55));
 
+        accountPanel.add(this.deleteButton);
         accountPanel.add(accountButton);
-        if (accountManager.getCurrentAccount() != null) {
-            accountPanel.add(deleteButton);
+        if (accountManager.getCurrentAccount() == null) {
+            deleteButton.setVisible(false);
         }
         playPanel.add(playButton);
 
@@ -112,7 +115,7 @@ public class Gui {
         JButton deleteButton = new JButton("");
         deleteButton.setIcon(new ImageIcon("src/main/resources/assets/trash_icon.png"));
         deleteButton.setFocusable(false);
-        deleteButton.setSize(65, 65);
+        deleteButton.setSize(100, 100);
         deleteButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -138,7 +141,7 @@ public class Gui {
                     );
                 }
 
-                accountButton.setName("Añadir cuenta");
+                accountButton.setText("Añadir cuenta");
                 deleteButton.setVisible(false);
             }
         });
