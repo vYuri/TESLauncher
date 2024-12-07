@@ -28,11 +28,9 @@ import me.theentropyshard.teslauncher.gui.view.accountsview.AccountsView;
 import me.theentropyshard.teslauncher.gui.view.playview.PlayView;
 import me.theentropyshard.teslauncher.minecraft.account.Account;
 import me.theentropyshard.teslauncher.minecraft.account.AccountManager;
-import me.theentropyshard.teslauncher.minecraft.account.AccountStorage;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
@@ -59,69 +57,61 @@ public class Gui {
 
         DarkLauncherLaf.setup();
 
+        JPanel bg = new JPanel();
+        bg.setBackground(new Color(30, 30, 30));
+        bg.setBounds(0, 0, 960, 85);
+
         this.viewSelector = new JTabbedPane(JTabbedPane.RIGHT);
 
-        TESLauncher.frame = this.frame = new JFrame(title);
-
-        JPanel accountPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JPanel playPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        playPanel.setBorder(new EmptyBorder(16, 16, 16, 16));
-        playPanel.setLayout(new GridBagLayout());
+        JLabel label = new JLabel(new ImageIcon("src/main/resources/assets/bg.png"));
+        JLabel label1 = new JLabel(new ImageIcon("src/main/resources/assets/title.png"));
+        label.setSize(new Dimension(960, 540));
+        //label1.setSize(new Dimension(102, 44));
+        label1.setBounds(TESLauncher.WIDTH / 2 - 480 / 2, (int) (TESLauncher.HEIGHT * 0.5 - 208 / 2.0), 480, 208);
 
         AccountManager accountManager = TESLauncher.getInstance().getAccountManager();
 
-        frame.setIconImage(SwingUtils.getImage("/assets/icons/screaminglabs_logo.png"));
+        this.accountButton = this.getAccountButton();
+        this.deleteButton = this.getDeleteButton();
+        JButton playButton = this.getPlayButton();
 
-        this.accountButton = new JButton(accountManager.getCurrentAccount() == null ? "Añadir cuenta" : accountManager.getCurrentAccount().getUsername());
-        accountButton.setFocusable(false);
-        accountButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        accountButton.setPreferredSize(new Dimension(250, 55));
-        accountButton.setFont(new Font("Arial", Font.PLAIN, 24));
-        accountButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (accountManager.getCurrentAccount() == null) {
-                    new AddAccountDialog();
-                    System.out.println(accountButton.getHeight());
-                }
-            }
-        });
-
-        this.deleteButton = getDeleteButton();
-
-        JButton playButton = new JButton("JUGAR");
-        playButton.setFocusable(false);
-        playButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        playButton.setPreferredSize(new Dimension((int) (TESLauncher.WIDTH * 0.3), (int) (TESLauncher.HEIGHT * 0.15)));
-        playButton.setFont(new Font("Arial", Font.PLAIN, 55));
-
-        accountPanel.add(this.deleteButton);
-        accountPanel.add(accountButton);
         if (accountManager.getCurrentAccount() == null) {
             deleteButton.setVisible(false);
         }
-        playPanel.add(playButton);
 
-        this.frame.add(accountPanel, BorderLayout.NORTH);
-        this.frame.add(playPanel, BorderLayout.CENTER);
+        TESLauncher.frame = this.frame = new JFrame(title);
+        frame.setIconImage(SwingUtils.getImage("/assets/icons/screaminglabs_logo.png"));
+        this.frame.setLayout(null);
+
+        this.frame.add(playButton);
+        this.frame.add(this.accountButton);
+        this.frame.add(this.deleteButton);
+        //this.frame.add(bg);
+        this.frame.add(label1);
+        this.frame.add(label);
 
         this.frame.getContentPane().setPreferredSize(new Dimension(TESLauncher.WIDTH, TESLauncher.HEIGHT));
+
         this.frame.pack();
         SwingUtils.centerWindow(this.frame, 0);
     }
 
     @NotNull
     private JButton getDeleteButton() {
-        JButton deleteButton = new JButton("");
+        JButton deleteButton = new JButton();
+        int height = 65;
+        int width = 65;
+
+        deleteButton.setBounds(270, 10, width, height);
         deleteButton.setIcon(new ImageIcon("src/main/resources/assets/trash_icon.png"));
         deleteButton.setFocusable(false);
-        deleteButton.setSize(100, 100);
+        deleteButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         deleteButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Account account = TESLauncher.getInstance().getAccountManager().getCurrentAccount();
                 boolean ok = MessageBox.showConfirmMessage(
-                        TESLauncher.frame,
+                        frame,
                         "Account removal",
                         "Are you sure that you want to remove account '" + account.getUsername() + "'?"
                 );
@@ -136,16 +126,65 @@ public class Gui {
                     ex.printStackTrace();
 
                     MessageBox.showErrorMessage(
-                            TESLauncher.frame,
+                            frame,
                             "Unable to remove account '" + account.getUsername() + "': " + ex.getMessage()
                     );
                 }
 
                 accountButton.setText("Añadir cuenta");
+                accountButton.setIcon(new ImageIcon("src/main/resources/assets/add_account.png"));
                 deleteButton.setVisible(false);
             }
         });
         return deleteButton;
+    }
+
+    private JButton getPlayButton() {
+        JButton playButton = new JButton("JUGAR");
+        int height = 80;
+        int width = 450;
+
+        playButton.setBounds(TESLauncher.WIDTH / 2 - width / 2, (int) (TESLauncher.HEIGHT * 0.9 - height / 2.0), width, height);
+        playButton.setFocusable(false);
+        playButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        playButton.setFont(new Font("Arial", Font.PLAIN, 55));
+        playButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println(playButton.getBounds().x + " " + playButton.getBounds().y);
+            }
+        });
+
+        return playButton;
+    }
+
+    private JButton getAccountButton() {
+        AccountManager accountManager = TESLauncher.getInstance().getAccountManager();
+        JButton accountButton = new JButton(accountManager.getCurrentAccount() == null ? "Añadir cuenta" : accountManager.getCurrentAccount().getUsername());
+        int height = 65;
+        int width = 250;
+
+        accountButton.setBounds(10, 10, width, height);
+        accountButton.setFocusable(false);
+        accountButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        accountButton.setPreferredSize(new Dimension(250, 55));
+        accountButton.setFont(new Font("Arial", Font.PLAIN, 24));
+        if (accountManager.getCurrentAccount() != null) {
+            accountButton.setIcon(SwingUtils.loadIconFromBase64(accountManager.getCurrentAccount().getHeadIcon()));
+        } else {
+            accountButton.setIcon(new ImageIcon("src/main/resources/assets/add_account.png"));
+        }
+        accountButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (accountManager.getCurrentAccount() == null) {
+                    new AddAccountDialog();
+                    System.out.println(accountButton.getHeight());
+                }
+            }
+        });
+
+        return accountButton;
     }
 
     public void showGui() {
