@@ -105,9 +105,6 @@ public class AccountsView extends JPanel {
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
-
-            PlayViewHeader header = TESLauncher.getInstance().getGui().getPlayView().getHeader();
-            header.setCurrentAccount(accountItem.getAccount());
         });
 
         this.group.addAccountItem(accountItem);

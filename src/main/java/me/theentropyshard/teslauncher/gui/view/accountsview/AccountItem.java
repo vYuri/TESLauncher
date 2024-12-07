@@ -153,13 +153,6 @@ public class AccountItem extends JPanel {
 
                         return;
                     }
-
-                    TESLauncher.getInstance().getGui().getAccountsView().removeAccountItem(AccountItem.this);
-
-                    if (wasSelected) {
-                        PlayViewHeader header = TESLauncher.getInstance().getGui().getPlayView().getHeader();
-                        header.setCurrentAccount(null);
-                    }
                 } else {
                     ActionEvent event = new ActionEvent(AccountItem.this, 1, String.valueOf(e.getButton()));
                     AccountItem.this.mouseClickListeners.forEach(listener -> listener.actionPerformed(event));
