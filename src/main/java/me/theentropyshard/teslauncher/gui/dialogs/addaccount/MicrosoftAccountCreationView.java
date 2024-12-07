@@ -140,7 +140,8 @@ public class MicrosoftAccountCreationView extends JPanel {
                         ex.printStackTrace();
                     }
 
-                    TESLauncher.getInstance().getGui().accountButton.setName(microsoftAccount.getUsername());
+                    TESLauncher.getInstance().getGui().accountButton.setText(microsoftAccount.getUsername());
+                    TESLauncher.getInstance().getGui().deleteButton.setVisible(true);
 
                     v.dialog.getDialog().dispose();
 
