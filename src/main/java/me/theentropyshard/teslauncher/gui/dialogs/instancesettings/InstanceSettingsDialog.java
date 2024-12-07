@@ -74,20 +74,6 @@ public class InstanceSettingsDialog extends AppDialog {
                         ex.printStackTrace();
                     }
                 });
-
-                InstancesPanel instancesPanel = TESLauncher.getInstance().getGui().getPlayView().getCurrentInstancesPanel();
-                JPanel itemsPanel = instancesPanel.getInstancesPanel();
-                for (Component component : itemsPanel.getComponents()) {
-                    MinecraftInstance associatedInstance = ((InstanceItem) component).getAssociatedInstance();
-                    if (associatedInstance == instance) {
-                        ((InstanceItem) component).getTextLabel().setText(instance.getName());
-                        try {
-                            instance.save();
-                        } catch (IOException ex) {
-                            ex.printStackTrace();
-                        }
-                    }
-                }
             }
         });
 
