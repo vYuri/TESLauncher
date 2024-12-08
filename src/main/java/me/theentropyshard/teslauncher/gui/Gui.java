@@ -48,21 +48,21 @@ public class Gui {
         background.setSize(new Dimension(960, 540));
 
         JLabel logo = new JLabel(new ImageIcon("src/main/resources/assets/title.png"));
-        logo.setBounds(TESLauncher.WIDTH / 2 - 480 / 2, (int) (TESLauncher.HEIGHT * 0.25 - 208 / 2.0), 480, 208);
+        logo.setBounds(TESLauncher.WIDTH / 2 - 270 / 2, 0, 270, 270);
 
         JPanel bar = new JPanel();
         bar.setBackground(new Color(30, 30, 30));
         bar.setBounds(0, 484, 960, 56);
 
         this.accountButton = this.getAccountButton();
-        JButton playButton = this.getPlayButton();
 
         TESLauncher.frame = this.frame = new JFrame(title);
         frame.setIconImage(SwingUtils.getImage("/assets/icons/screaminglabs_logo.png"));
         this.frame.setLayout(null);
 
-        this.frame.add(playButton);
+        this.frame.add(this.getPlayButton());
         this.frame.add(this.accountButton);
+        this.frame.add(this.getInfoButton());
         this.frame.add(bar);
         this.frame.add(logo);
         this.frame.add(background);
@@ -74,14 +74,14 @@ public class Gui {
     }
 
     private JButton getPlayButton() {
-        JButton playButton = new JButton("JUGAR");
-        int height = 80;
-        int width = 450;
+        JButton playButton = new JButton();
+        int height = 84;
+        int width = 454;
 
-        playButton.setBounds(TESLauncher.WIDTH / 2 - width / 2, 444, width, height);
+        playButton.setBounds(TESLauncher.WIDTH / 2 - width / 2, 484 - height / 2, width, height);
         playButton.setFocusable(false);
         playButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        playButton.setFont(new Font("Arial", Font.PLAIN, 55));
+        playButton.setIcon(new ImageIcon("src/main/resources/assets/play.png"));
         playButton.addActionListener(e -> {
             if (TESLauncher.getInstance().getAccountManager().getCurrentAccount() == null) {
 
@@ -108,13 +108,12 @@ public class Gui {
     private JButton getAccountButton() {
         AccountManager accountManager = TESLauncher.getInstance().getAccountManager();
         JButton accountButton = new JButton();
-        int height = 64;
-        int width = 64;
+        int height = 70;
+        int width = 70;
 
-        accountButton.setBounds(720, 452, width, height);
+        accountButton.setBounds(718, 484 - height / 2, width, height);
         accountButton.setFocusable(false);
         accountButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        accountButton.setFont(new Font("Arial", Font.PLAIN, 24));
         if (accountManager.getCurrentAccount() != null) {
             accountButton.setIcon(SwingUtils.loadIconFromBase64(accountManager.getCurrentAccount().getHeadIcon()));
         } else {
@@ -156,6 +155,19 @@ public class Gui {
         });
 
         return accountButton;
+    }
+
+    private JButton getInfoButton() {
+        JButton infoButton = new JButton();
+        int height = 70;
+        int width = 70;
+
+        infoButton.setBounds(172, 484 - height / 2, width, height);
+        infoButton.setFocusable(false);
+        infoButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        infoButton.setIcon(new ImageIcon("src/main/resources/assets/info.png"));
+
+        return infoButton;
     }
 
     public void showGui() {
