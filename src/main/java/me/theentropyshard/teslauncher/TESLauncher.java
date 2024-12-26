@@ -18,9 +18,12 @@
 
 package me.theentropyshard.teslauncher;
 
+import me.theentropyshard.teslauncher.instance.InstanceAlreadyExistsException;
 import me.theentropyshard.teslauncher.minecraft.account.AccountManager;
 import me.theentropyshard.teslauncher.gui.Gui;
 import me.theentropyshard.teslauncher.instance.InstanceManager;
+import me.theentropyshard.teslauncher.minecraft.download.FabricDownloader;
+import me.theentropyshard.teslauncher.minecraft.download.ModManifest;
 import me.theentropyshard.teslauncher.network.UserAgentInterceptor;
 import me.theentropyshard.teslauncher.gui.utils.WindowClosingListener;
 import me.theentropyshard.teslauncher.utils.FileUtils;
@@ -29,8 +32,15 @@ import okhttp3.Protocol;
 import me.theentropyshard.teslauncher.logging.Log;
 
 import javax.swing.*;
+import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -61,6 +71,9 @@ public class TESLauncher {
 
     private final AccountManager accountManager;
     private final InstanceManager instanceManager;
+    private ModManifest externalModManifest;
+    private ModManifest localModManifest;
+    private boolean firstInstall;
 
     private final ExecutorService taskPool;
 
@@ -68,6 +81,7 @@ public class TESLauncher {
 
     private volatile boolean shutdown;
 
+    public static final String manifestURL = "https://elreino.live/launcher/manifest.json";
     public static JFrame frame;
 
     public TESLauncher(Args args, Path workDir) {
@@ -122,6 +136,35 @@ public class TESLauncher {
         this.gui.getFrame().addWindowListener(new WindowClosingListener(e -> TESLauncher.this.shutdown()));
 
         this.gui.showGui();
+
+        try {
+            URI uri = new URI(manifestURL);
+            this.externalModManifest = new ModManifest(uri);
+
+            File manifestFile = minecraftDir.resolve("manifest.json").toFile();
+            if(!manifestFile.exists() && externalModManifest != null) {
+                this.firstInstall = true;
+                Files.copy(uri.toURL().openStream(), manifestFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            }
+
+            localModManifest = new ModManifest(manifestFile.toPath().toUri());
+        } catch (URISyntaxException | IOException e) {
+            Log.error("Failed to load mod manifest", e);
+        }
+
+        if(externalModManifest != null && localModManifest != null && firstInstall) {
+            try {
+                this.instanceManager.createInstance(localModManifest.getPackName(), "xd?", localModManifest.getMinecraftVersion());
+            } catch (IOException | InstanceAlreadyExistsException e) {
+                Log.error("Failed to create instance", e);
+            }
+        }
+
+        /*try {
+            FabricDownloader fabricDownloader = new FabricDownloader(localModManifest.getMinecraftVersion(), instanceManager.getInstanceByName(localModManifest.getPackName()).getMinecraftDir());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }*/
     }
 
     private void createDirectories() {
@@ -230,5 +273,17 @@ public class TESLauncher {
 
     public Gui getGui() {
         return this.gui;
+    }
+
+    public ModManifest getExternalModManifest() {
+        return externalModManifest;
+    }
+
+    public ModManifest getLocalModManifest() {
+        return localModManifest;
+    }
+
+    public boolean isFirstInstall() {
+        return firstInstall;
     }
 }

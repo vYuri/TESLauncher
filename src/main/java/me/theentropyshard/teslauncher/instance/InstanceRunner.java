@@ -28,6 +28,7 @@ import me.theentropyshard.teslauncher.minecraft.account.Account;
 import me.theentropyshard.teslauncher.minecraft.account.OfflineAccount;
 import me.theentropyshard.teslauncher.minecraft.auth.microsoft.AuthException;
 import me.theentropyshard.teslauncher.minecraft.data.Version;
+import me.theentropyshard.teslauncher.minecraft.download.FabricDownloader;
 import me.theentropyshard.teslauncher.minecraft.download.GuiMinecraftDownloader;
 import me.theentropyshard.teslauncher.minecraft.download.MinecraftDownloader;
 import me.theentropyshard.teslauncher.minecraft.launch.MinecraftLauncher;
@@ -113,6 +114,7 @@ public class InstanceRunner extends Thread {
             this.checkMinecraftInstallation(useDialog, versionsDir, assetsDir, librariesDir, nativesDir, runtimesDir, minecraftDir,
                 minecraftVersion, javaPath == null);
 
+            // Acá tiene que cambiarse la data de FABRIC
             Path clientJson = versionsDir.resolve(minecraftVersion).resolve(minecraftVersion + ".json");
             Version version = Json.parse(FileUtils.readUtf8(clientJson), Version.class);
 
@@ -123,7 +125,7 @@ public class InstanceRunner extends Thread {
 
             int option = TESLauncher.getInstance().getSettings().whenMCLaunchesOption;
 
-            boolean consoleWasOpen = LauncherConsole.instance.getFrame().isVisible();
+            //boolean consoleWasOpen = LauncherConsole.instance.getFrame().isVisible();
 
             switch (option) {
                 case 1:
@@ -150,12 +152,7 @@ public class InstanceRunner extends Thread {
             if (exitsOption == 0) {
                 switch (option) {
                     case 1:
-                        TESLauncher.frame.setVisible(true);
-                        break;
                     case 2:
-                        if (consoleWasOpen) {
-                            LauncherConsole.instance.setVisible(true);
-                        }
                         TESLauncher.frame.setVisible(true);
                         break;
                 }
@@ -187,7 +184,6 @@ public class InstanceRunner extends Thread {
     private void checkMinecraftInstallation(boolean useDialog, Path versionsDir, Path assetsDir, Path librariesDir,
                                             Path nativesDir, Path runtimesDir, Path minecraftDir, String minecraftVersion,
                                             boolean downloadJava) throws IOException {
-
         MinecraftDownloader downloader;
         if (useDialog) {
             downloader = new GuiMinecraftDownloader(
@@ -214,6 +210,13 @@ public class InstanceRunner extends Thread {
         }
 
         downloader.downloadMinecraft(minecraftVersion);
+
+        // Used for Fabric Installer
+        File versionLocation = new File(versionsDir + "/" + minecraftVersion+"/");
+        Path instanceDir = instance.getMinecraftDir();
+
+        // TODO Link que descargue el manifest del modpack
+        FabricDownloader fabricDownloader = new FabricDownloader(minecraftVersion, instanceDir);
     }
 
     private void deleteTempClient() {

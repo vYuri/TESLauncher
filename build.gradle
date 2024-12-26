@@ -51,6 +51,7 @@ ext {
     jna = '5.14.0'
     log4j = '2.20.0'
     junit = '5.7.2'
+    commonsio = '2.14.0'
 }
 
 dependencies {
@@ -64,6 +65,7 @@ dependencies {
     implementation "net.java.dev.jna:jna-platform:$jna"
     implementation "org.apache.logging.log4j:log4j-api:$log4j"
     implementation "org.apache.logging.log4j:log4j-core:$log4j"
+    implementation "commons-io:commons-io:$commonsio"
 
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junit"
     testImplementation "org.junit.jupiter:junit-jupiter-engine:$junit"

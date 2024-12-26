@@ -20,10 +20,15 @@ package me.theentropyshard.teslauncher.gui;
 
 import com.formdev.flatlaf.FlatLaf;
 import me.theentropyshard.teslauncher.TESLauncher;
+import me.theentropyshard.teslauncher.gui.components.InstanceItem;
 import me.theentropyshard.teslauncher.gui.dialogs.addaccount.AddAccountDialog;
 import me.theentropyshard.teslauncher.gui.laf.DarkLauncherLaf;
 import me.theentropyshard.teslauncher.gui.utils.MessageBox;
 import me.theentropyshard.teslauncher.gui.utils.SwingUtils;
+import me.theentropyshard.teslauncher.gui.view.playview.PlayView;
+import me.theentropyshard.teslauncher.instance.Instance;
+import me.theentropyshard.teslauncher.instance.InstanceRunner;
+import me.theentropyshard.teslauncher.minecraft.MinecraftInstance;
 import me.theentropyshard.teslauncher.minecraft.account.Account;
 import me.theentropyshard.teslauncher.minecraft.account.AccountManager;
 
@@ -99,6 +104,10 @@ public class Gui {
                 if (option == 0) {
                     new AddAccountDialog();
                 }
+            } else {
+                MinecraftInstance instance = TESLauncher.getInstance().getInstanceManager().getInstanceByName(TESLauncher.getInstance().getLocalModManifest().getPackName());
+
+                new InstanceRunner(TESLauncher.getInstance().getAccountManager().getCurrentAccount(), new InstanceItem(SwingUtils.getIcon("/assets/grass_icon.png"), instance.getName())).start();
             }
         });
 
