@@ -88,8 +88,14 @@ public class Gui {
 
     private JButton getPlayButton() {
         JButton playButton = new JButton();
-        int height = 84;
-        int width = 454;
+        int height = 36;
+        int width = 174;
+
+        // Reduce la opacidad del botón
+        float opacity = 0.0f;
+        playButton.setOpaque(false);
+        playButton.setForeground(new Color(255, 255, 255, (int)(opacity * 255)));
+        playButton.setBackground(new Color(0, 0, 0, 0));
 
         playButton.setBounds(TESLauncher.WIDTH / 2 - width / 2, 484 - height / 2, width, height);
         playButton.setFocusable(false);
