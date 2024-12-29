@@ -24,10 +24,12 @@ import me.theentropyshard.teslauncher.logging.Log;
 import me.theentropyshard.teslauncher.minecraft.account.Account;
 import me.theentropyshard.teslauncher.minecraft.account.microsoft.MicrosoftAccount;
 import me.theentropyshard.teslauncher.minecraft.data.AssetIndex;
+import me.theentropyshard.teslauncher.minecraft.data.FabricLibrary;
 import me.theentropyshard.teslauncher.minecraft.data.Library;
 import me.theentropyshard.teslauncher.minecraft.data.Version;
 import me.theentropyshard.teslauncher.minecraft.data.argument.Argument;
 import me.theentropyshard.teslauncher.minecraft.data.argument.ArgumentType;
+import me.theentropyshard.teslauncher.minecraft.download.ModManifest;
 import me.theentropyshard.teslauncher.utils.FileUtils;
 import me.theentropyshard.teslauncher.utils.OperatingSystem;
 import me.theentropyshard.teslauncher.utils.ProcessReader;
@@ -83,6 +85,13 @@ public class MinecraftLauncher {
                 this.classpath.add(librariesDir.resolve(artifact.getPath()).toAbsolutePath().toString());
             }
         }
+
+        for(FabricLibrary fabricLibrary : version.getFabricLibraries()) {
+            String[] splittedLibrary = fabricLibrary.getName().split(":");
+            String dirPath = splittedLibrary[0].replaceAll("\\.", "/") + "/" + splittedLibrary[1] + "/" + splittedLibrary[2] + "/";
+            Path libraryDirectory = librariesDir.resolve(dirPath + splittedLibrary[1] + "-" + splittedLibrary[2] + ".jar");
+            this.classpath.add(libraryDirectory.toAbsolutePath().toString());
+        }
     }
 
     private List<String> getArguments(Account account, Version version, Path tmpNativesDir, Path librariesDir, Path minecraftDir,
@@ -96,6 +105,8 @@ public class MinecraftLauncher {
 
         arguments.add("-Dfile.encoding=utf-8");
         arguments.add("-Dconsole.encoding=utf-8");
+        // TODO FORCED
+        arguments.add("-DFabricMcEmu= net.minecraft.client.main.Main");
 
         if (jvmFlags != null && !jvmFlags.isEmpty()) {
             arguments.addAll(jvmFlags);
@@ -253,13 +264,20 @@ public class MinecraftLauncher {
     private int runGameProcess(List<String> command, Path runDir, Account account, boolean exitAfterLaunch) throws IOException {
         Log.info("Working directory: " + runDir);
 
+        // TODO FORCED FIX
+        ModManifest manifest = TESLauncher.getInstance().getLocalModManifest();
+        String fabricReplacement = "fabric-loader-" + manifest.getFabricLoaderVersion() + "-" + manifest.getMinecraftVersion();
+        String name = manifest.getPackName();
+        String projectReplacementFabric = String.format("\\\\minecraft\\\\instances\\\\%s\\\\.minecraft\\\\libraries\\\\net\\\\fabricmc\\\\", name);
+        String projectReplacementOw2 = String.format("\\\\minecraft\\\\instances\\\\%s\\\\.minecraft\\\\libraries\\\\org\\\\ow2\\\\", name);
+        command = command.stream().map(s -> s.replaceAll(fabricReplacement, manifest.getMinecraftVersion()).replaceAll("\\\\minecraft\\\\libraries\\\\net\\\\fabricmc\\\\", projectReplacementFabric).replaceAll("\\\\minecraft\\\\libraries\\\\org\\\\ow2\\\\", projectReplacementOw2)).collect(Collectors.toList());
+
         List<String> censoredCommand = command.stream()
             .map(s -> (account instanceof MicrosoftAccount) ? s.replace(account.getAccessToken(), "**ACCESSTOKEN**") : s)
             .map(s -> s.replace(account.getUsername(), "**USERNAME**"))
             .map(s -> s.replace(account.getUuid().toString(), "**UUID**"))
             .collect(Collectors.toList());
         Log.info("Running: " + censoredCommand);
-
         ProcessBuilder processBuilder = new ProcessBuilder(command);
         processBuilder.environment().put("APPDATA", runDir.toString());
         processBuilder.directory(runDir.toFile());

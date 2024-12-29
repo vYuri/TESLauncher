@@ -61,7 +61,7 @@ public class TESLauncher {
     private final Path assetsDir;
     private final Path librariesDir;
     private final Path instancesDir;
-    private final Path versionsDir;
+    private Path versionsDir;
     private final Path log4jConfigsDir;
 
     private final Path settingsFile;
@@ -81,7 +81,7 @@ public class TESLauncher {
 
     private volatile boolean shutdown;
 
-    public static final String manifestURL = "https://elreino.live/launcher/manifest.json";
+    public static final String manifestURL = "https://elreino.live/launcher/7a290cbd-87bc-4c86-bd6e-7e60248f3080.json";
     public static JFrame frame;
 
     public TESLauncher(Args args, Path workDir) {
@@ -158,6 +158,13 @@ public class TESLauncher {
             } catch (IOException | InstanceAlreadyExistsException e) {
                 Log.error("Failed to create instance", e);
             }
+        }
+
+        versionsDir = this.instanceManager.getInstanceByName(localModManifest.getPackName()).getMinecraftDir().resolve("versions");
+        try {
+            FileUtils.createDirectoryIfNotExists(versionsDir);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
         /*try {

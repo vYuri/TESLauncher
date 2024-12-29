@@ -19,6 +19,8 @@
 package me.theentropyshard.teslauncher.logging;
 
 import java.io.CharArrayWriter;
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;

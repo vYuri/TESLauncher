@@ -27,16 +27,15 @@ import me.theentropyshard.teslauncher.network.HttpRequest;
 import me.theentropyshard.teslauncher.network.download.DownloadList;
 import me.theentropyshard.teslauncher.network.download.HttpDownload;
 import me.theentropyshard.teslauncher.network.progress.ProgressNetworkInterceptor;
-import me.theentropyshard.teslauncher.utils.FileUtils;
-import me.theentropyshard.teslauncher.utils.HashUtils;
-import me.theentropyshard.teslauncher.utils.ListUtils;
-import me.theentropyshard.teslauncher.utils.OperatingSystem;
+import me.theentropyshard.teslauncher.utils.*;
 import me.theentropyshard.teslauncher.utils.json.Json;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.model.FileHeader;
 import okhttp3.OkHttpClient;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -207,12 +206,23 @@ public class MinecraftDownloader {
             try {
                 String[] split = version.getId().split("\\.");
                 int minorVersion = Integer.parseInt(split[1]);
+                int patch = Integer.parseInt(split[2]);
 
+                if(minorVersion >= 21 || minorVersion == 20 && patch >= 5) {
+                    javaKey = "java-runtime-delta";
+                } else if(minorVersion >= 18) {
+                    javaKey = "java-runtime-gamma";
+                } else if(minorVersion == 17) {
+                    javaKey = "java-runtime-alpha";
+                } else {
+                    javaKey = "jre-legacy";
+                }
+                /*
                 if (minorVersion >= 17) {
                     javaKey = "java-runtime-gamma";
                 } else {
                     javaKey = "jre-legacy";
-                }
+                }*/
             } catch (Exception ignored) {
                 javaKey = "jre-legacy";
             }
@@ -373,6 +383,20 @@ public class MinecraftDownloader {
                         .build();
                     librariesList.add(download);
                 }
+            }
+        }
+
+        if(version.getFabricLibraries() != null) {
+            for(FabricLibrary fabricLibrary : version.getFabricLibraries()) {
+                String[] splittedLibrary = fabricLibrary.getName().split(":");
+                String dirPath = splittedLibrary[0].replaceAll("\\.", "/") + "/" + splittedLibrary[1] + "/" + splittedLibrary[2] + "/";
+                String url = fabricLibrary.getUrl() + dirPath + splittedLibrary[1] + "-" + splittedLibrary[2] + ".jar";
+                Path libraryDirectory = TESLauncher.getInstance().getLibrariesDir().resolve(dirPath);
+                FileUtils.createDirectoryIfNotExists(libraryDirectory);
+
+                Log.info("Downloaded library "+ splittedLibrary[1] + "-" + splittedLibrary[2] + ".jar");
+
+                new FileDownloader(new URL(url), libraryDirectory.toFile(), splittedLibrary[1] + "-" + splittedLibrary[2] + ".jar").downloadFile();
             }
         }
 

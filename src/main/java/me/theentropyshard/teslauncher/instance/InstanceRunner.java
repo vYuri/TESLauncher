@@ -31,6 +31,7 @@ import me.theentropyshard.teslauncher.minecraft.data.Version;
 import me.theentropyshard.teslauncher.minecraft.download.FabricDownloader;
 import me.theentropyshard.teslauncher.minecraft.download.GuiMinecraftDownloader;
 import me.theentropyshard.teslauncher.minecraft.download.MinecraftDownloader;
+import me.theentropyshard.teslauncher.minecraft.download.ModManifest;
 import me.theentropyshard.teslauncher.minecraft.launch.MinecraftLauncher;
 import me.theentropyshard.teslauncher.utils.FileUtils;
 import me.theentropyshard.teslauncher.utils.TimeUtils;
@@ -115,7 +116,8 @@ public class InstanceRunner extends Thread {
                 minecraftVersion, javaPath == null);
 
             // Acá tiene que cambiarse la data de FABRIC
-            Path clientJson = versionsDir.resolve(minecraftVersion).resolve(minecraftVersion + ".json");
+            ModManifest modManifest = TESLauncher.getInstance().getLocalModManifest();
+            Path clientJson = versionsDir.resolve(String.format("fabric-loader-%s-%s", modManifest.getFabricLoaderVersion(), modManifest.getMinecraftVersion())).resolve(String.format("fabric-loader-%s-%s", modManifest.getFabricLoaderVersion(), modManifest.getMinecraftVersion()) + ".json");
             Version version = Json.parse(FileUtils.readUtf8(clientJson), Version.class);
 
             MinecraftLauncher launcher = new MinecraftLauncher(librariesDir, runtimesDir, nativesDir, javaPath);
@@ -216,6 +218,7 @@ public class InstanceRunner extends Thread {
         Path instanceDir = instance.getMinecraftDir();
 
         // TODO Link que descargue el manifest del modpack
+        Log.info("Initializing Fabric Downloader");
         FabricDownloader fabricDownloader = new FabricDownloader(minecraftVersion, instanceDir);
     }
 

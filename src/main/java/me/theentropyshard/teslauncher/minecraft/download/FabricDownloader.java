@@ -47,11 +47,10 @@ public class FabricDownloader {
 
     public void installFabric() throws IOException {
         System.out.println("Installing Fabric Installer");
-        File tempFabricFile = minecraftDir.resolve("fabric-installer.jar").toFile();
-        new FileDownloader(new URL("https://maven.fabricmc.net/net/fabricmc/fabric-installer/1.0.1/fabric-installer-1.0.1.jar"), tempFabricFile, "fabric-installer.jar");
+        new FileDownloader(new URL("https://maven.fabricmc.net/net/fabricmc/fabric-installer/1.0.1/fabric-installer-1.0.1.jar"), minecraftDir.toFile(), "fabric-installer.jar").downloadFile();
         ModManifest localManifest = TESLauncher.getInstance().getLocalModManifest();
 
-        ProcessBuilder installer = new ProcessBuilder("java", "-jar", tempFabricFile.getAbsolutePath(), "client", "-dir", minecraftDir.toFile().getAbsolutePath(), "-mcversion", localManifest.getMinecraftVersion(), "-loader", localManifest.getFabricLoaderVersion(), "-launcher", "win32");
+        ProcessBuilder installer = new ProcessBuilder("java", "-jar", minecraftDir.resolve("fabric-installer.jar").toFile().getAbsolutePath(), "client", "-dir", minecraftDir.toFile().getAbsolutePath(), "-mcversion", localManifest.getMinecraftVersion(), "-loader", localManifest.getFabricLoaderVersion(), "-launcher", "win32");
         Process p = installer.start();
 
         try {
@@ -61,7 +60,6 @@ public class FabricDownloader {
         }
 
         System.out.println("Fabric installed");
-        tempFabricFile.delete();
     }
 
     /**
@@ -122,6 +120,9 @@ public class FabricDownloader {
 
             org.apache.commons.io.FileUtils.deleteDirectory(tempDir.toFile());
         } else { // Significa que solo hay que revisar por update
+            Log.info("Unzipping pack...");
+            new ZipFile(tempDir.resolve("TemporaryPack.zip").toFile()).extractAll(tempDir.toFile().getAbsolutePath());
+
             external.getFolderRemovals().stream().filter(fileRemoval -> fileRemoval.getVersion() > local.getVersion()).forEach(file -> {
                 if(file.getFileName().endsWith(".jar")) {
                     modsDir.resolve(file.getFileName()).toFile().delete();
@@ -151,11 +152,17 @@ public class FabricDownloader {
 
 
             // Updatea el local file para saber que se realizó la actualización correspondiente
+
             try {
-                new FileDownloader(new URL(TESLauncher.manifestURL), minecraftDir.resolve("manifest.json").toFile(), "manifest.json").downloadFile();
+                Log.info("Trying to update manifest file");
+                org.apache.commons.io.FileUtils.delete(TESLauncher.getInstance().getWorkDir().resolve("minecraft/manifest.json").toFile());
+                new FileDownloader(new URL(TESLauncher.manifestURL), TESLauncher.getInstance().getWorkDir().resolve("minecraft/").toFile(), "manifest.json").downloadFile();
+                Log.info("Updated manifest file: " + TESLauncher.getInstance().getWorkDir().resolve("minecraft/manifest.json").toFile().getAbsolutePath());
             } catch (IOException e) {
                 Log.error("Failed updating local manifest file", e);
             }
+
+            org.apache.commons.io.FileUtils.deleteDirectory(tempDir.toFile());
         }
 
     }

@@ -37,6 +37,10 @@ public class OffsetDateTimeTypeAdapter extends TypeAdapter<OffsetDateTime> {
 
     @Override
     public OffsetDateTime read(JsonReader reader) throws IOException {
-        return OffsetDateTime.parse(reader.nextString());
+        try {
+            return OffsetDateTime.parse(reader.nextString());
+        } catch (Exception e) {
+            return OffsetDateTime.now();
+        }
     }
 }

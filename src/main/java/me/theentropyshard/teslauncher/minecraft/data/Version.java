@@ -22,6 +22,7 @@ import me.theentropyshard.teslauncher.minecraft.data.argument.Argument;
 import me.theentropyshard.teslauncher.minecraft.data.argument.ArgumentType;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 
@@ -38,6 +39,7 @@ public class Version {
     private int complianceLevel;
     private EnumMap<DownloadType, Download> downloads;
     private List<Library> libraries;
+    private List<FabricLibrary> fabricLibraries;
     private EnumMap<ArgumentType, List<Argument>> arguments;
 
     public Version() {
@@ -140,12 +142,30 @@ public class Version {
         this.libraries = libraries;
     }
 
+    public void setFabricLibraries(List<FabricLibrary> fabricLibraries) {
+        this.fabricLibraries = fabricLibraries;
+    }
+
     public EnumMap<ArgumentType, List<Argument>> getArguments() {
         return this.arguments;
     }
 
+
     public void setArguments(EnumMap<ArgumentType, List<Argument>> arguments) {
-        this.arguments = arguments;
+        if(this.arguments != null) {
+            this.arguments.putAll(arguments);
+        } else {
+            this.arguments = arguments;
+        }
+    }
+
+    public void addArguments(EnumMap<ArgumentType, List<Argument>> arguments) {
+        if(this.arguments == null) { this.arguments = new EnumMap<>(ArgumentType.class); }
+        this.arguments.putAll(arguments);
+    }
+
+    public List<FabricLibrary> getFabricLibraries() {
+        return fabricLibraries;
     }
 
     public static final class AssetIndex {
