@@ -33,6 +33,8 @@ import me.theentropyshard.teslauncher.minecraft.account.AccountManager;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class Gui {
     private final JFrame frame;
@@ -52,7 +54,7 @@ public class Gui {
         background.setSize(new Dimension(960, 540));
 
         JLabel logo = new JLabel(new ImageIcon("src/main/resources/assets/title.png"));
-        logo.setBounds(TESLauncher.WIDTH / 2 - 270 / 2, 0, 270, 270);
+        logo.setBounds(TESLauncher.WIDTH / 2 - 270 / 2, 0, 370, 270);
 
         JPanel bar = new JPanel();
         bar.setBackground(new Color(30, 30, 30));
@@ -92,20 +94,24 @@ public class Gui {
         int width = 174;
 
         // Reduce la opacidad del botón
-        float opacity = 0.0f;
+        float defaultOpacity = 0.0f;
+        float hoverOpacity = 0.3f; // Opacidad más oscura al pasar el ratón
         playButton.setOpaque(false);
-        playButton.setForeground(new Color(255, 255, 255, (int)(opacity * 255)));
+        playButton.setForeground(new Color(255, 255, 255, (int)(defaultOpacity * 255)));
         playButton.setBackground(new Color(0, 0, 0, 0));
 
         playButton.setBounds(TESLauncher.WIDTH / 2 - width / 2, 484 - height / 2, width, height);
         playButton.setFocusable(false);
         playButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         playButton.setIcon(new ImageIcon("src/main/resources/assets/play.png"));
+
+        playButton.setBorder(BorderFactory.createEmptyBorder());
+
         playButton.addActionListener(e -> {
             if (TESLauncher.getInstance().getAccountManager().getCurrentAccount() == null) {
 
                 int option = JOptionPane.showOptionDialog(
-                null,
+                        null,
                         "Debes iniciar sesión para poder jugar",
                         "Iniciar sesión",
                         JOptionPane.DEFAULT_OPTION,
@@ -125,16 +131,37 @@ public class Gui {
             }
         });
 
+        // Agregar el efecto de hover
+        playButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                playButton.setBackground(new Color(0, 0, 0, (int)(hoverOpacity * 255)));
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                playButton.setBackground(new Color(0, 0, 0, (int)(defaultOpacity * 255)));
+            }
+        });
+
         return playButton;
     }
+
 
     private JButton getAccountButton() {
         AccountManager accountManager = TESLauncher.getInstance().getAccountManager();
         JButton accountButton = new JButton();
-        int height = 70;
-        int width = 70;
+        int height = 32;
+        int width = 32;
 
-        accountButton.setBounds(718, 484 - height / 2, width, height);
+        // Inicializa el botón con opacidad transparente
+        float defaultOpacity = 0.0f;
+        float hoverOpacity = 0.3f; // Opacidad más oscura al pasar el ratón
+        accountButton.setOpaque(false);
+        accountButton.setForeground(new Color(255, 255, 255, (int)(defaultOpacity * 255)));
+        accountButton.setBackground(new Color(0, 0, 0, 0));
+
+        accountButton.setBounds(620, 484 - height / 2, width, height);
         accountButton.setFocusable(false);
         accountButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         if (accountManager.getCurrentAccount() != null) {
@@ -142,6 +169,9 @@ public class Gui {
         } else {
             accountButton.setIcon(new ImageIcon("src/main/resources/assets/add_account.png"));
         }
+
+        accountButton.setBorder(BorderFactory.createEmptyBorder());
+
         accountButton.addActionListener(e -> {
             if (accountManager.getCurrentAccount() == null) {
                 new AddAccountDialog();
@@ -177,18 +207,54 @@ public class Gui {
             }
         });
 
+        // Agregar el efecto de hover
+        accountButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                accountButton.setBackground(new Color(0, 0, 0, (int)(hoverOpacity * 255)));
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                accountButton.setBackground(new Color(0, 0, 0, (int)(defaultOpacity * 255)));
+            }
+        });
+
         return accountButton;
     }
 
+
     private JButton getInfoButton() {
         JButton infoButton = new JButton();
-        int height = 70;
-        int width = 70;
+        int height = 32;
+        int width = 32;
 
-        infoButton.setBounds(172, 484 - height / 2, width, height);
+        // Inicializa el botón con opacidad transparente
+        float defaultOpacity = 0.0f;
+        float hoverOpacity = 0.3f; // Opacidad más oscura al pasar el ratón
+        infoButton.setOpaque(false);
+        infoButton.setForeground(new Color(255, 255, 255, (int)(defaultOpacity * 255)));
+        infoButton.setBackground(new Color(0, 0, 0, 0));
+
+        infoButton.setBounds(300, 484 - height / 2, width, height);
         infoButton.setFocusable(false);
         infoButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         infoButton.setIcon(new ImageIcon("src/main/resources/assets/info.png"));
+
+        infoButton.setBorder(BorderFactory.createEmptyBorder());
+
+        // Agregar el efecto de hover
+        infoButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                infoButton.setBackground(new Color(0, 0, 0, (int)(hoverOpacity * 255)));
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                infoButton.setBackground(new Color(0, 0, 0, (int)(defaultOpacity * 255)));
+            }
+        });
 
         return infoButton;
     }
