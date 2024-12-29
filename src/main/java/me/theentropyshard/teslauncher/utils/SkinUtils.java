@@ -24,9 +24,9 @@ import java.awt.image.BufferedImage;
 public final class SkinUtils {
     public static BufferedImage getScaledSkinHead(BufferedImage skin) {
         BufferedImage head = skin.getSubimage(8, 8, 8, 8);
-        Image scaledHead = head.getScaledInstance(64, 64, BufferedImage.SCALE_FAST);
+        Image scaledHead = head.getScaledInstance(32, 32, BufferedImage.SCALE_FAST);
 
-        BufferedImage result = new BufferedImage(64, 64, BufferedImage.TYPE_INT_RGB);
+        BufferedImage result = new BufferedImage(32, 32, BufferedImage.TYPE_INT_RGB);
         Graphics graphics = result.getGraphics();
         graphics.drawImage(scaledHead, 0, 0, null);
         graphics.dispose();
