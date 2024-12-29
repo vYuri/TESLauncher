@@ -25,8 +25,6 @@ import me.theentropyshard.teslauncher.gui.dialogs.addaccount.AddAccountDialog;
 import me.theentropyshard.teslauncher.gui.laf.DarkLauncherLaf;
 import me.theentropyshard.teslauncher.gui.utils.MessageBox;
 import me.theentropyshard.teslauncher.gui.utils.SwingUtils;
-import me.theentropyshard.teslauncher.gui.view.playview.PlayView;
-import me.theentropyshard.teslauncher.instance.Instance;
 import me.theentropyshard.teslauncher.instance.InstanceRunner;
 import me.theentropyshard.teslauncher.minecraft.MinecraftInstance;
 import me.theentropyshard.teslauncher.minecraft.account.Account;
@@ -38,6 +36,7 @@ import java.io.IOException;
 
 public class Gui {
     private final JFrame frame;
+    private final JSlider slider;
     public final JButton accountButton;
 
     public Gui(String title) {
@@ -59,7 +58,14 @@ public class Gui {
         bar.setBackground(new Color(30, 30, 30));
         bar.setBounds(0, 484, 960, 56);
 
+        JLabel label = new JLabel();
+        label.setBounds(20, 415, 200, 100);
+        label.setFont(new Font("Arial", Font.PLAIN, 12));
+        label.setText("Memoria RAM asiganada");
+
         this.accountButton = this.getAccountButton();
+
+        this.slider = this.getSlider();
 
         TESLauncher.frame = this.frame = new JFrame(title);
         frame.setIconImage(SwingUtils.getImage("/assets/icons/screaminglabs_logo.png"));
@@ -68,6 +74,8 @@ public class Gui {
         this.frame.add(this.getPlayButton());
         this.frame.add(this.accountButton);
         this.frame.add(this.getInfoButton());
+        this.frame.add(this.slider);
+        this.frame.add(label);
         this.frame.add(bar);
         this.frame.add(logo);
         this.frame.add(background);
@@ -177,6 +185,19 @@ public class Gui {
         infoButton.setIcon(new ImageIcon("src/main/resources/assets/info.png"));
 
         return infoButton;
+    }
+
+    private JSlider getSlider() {
+        JSlider slider = new JSlider(2, 8);
+
+        slider.setBounds(15, 455, 150, 100);
+        slider.setPaintTicks(true);
+        slider.setMajorTickSpacing(2);
+        slider.setMinorTickSpacing(1);
+        slider.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        slider.setPaintLabels(true);
+
+        return slider;
     }
 
     public void showGui() {
