@@ -35,6 +35,8 @@ import java.awt.*;
 import java.io.IOException;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Gui {
     private final JFrame frame;
@@ -50,8 +52,25 @@ public class Gui {
 
         DarkLauncherLaf.setup();
 
-        JLabel background = new JLabel(new ImageIcon("src/main/resources/assets/bg.png"));
+        JLabel background = new JLabel();
         background.setSize(new Dimension(960, 540));
+
+        String[] imagePaths = {
+                "src/main/resources/assets/bg.png",
+                "src/main/resources/assets/bg2.png",
+                "src/main/resources/assets/bg3.png"
+        };
+
+        Timer timer = new Timer();
+        final int[] currentIndex = {0};
+
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                background.setIcon(new ImageIcon(imagePaths[currentIndex[0]]));
+                currentIndex[0] = (currentIndex[0] + 1) % imagePaths.length;
+            }
+        }, 0, 3000); // Cambia cada 3 segundos
 
         JLabel logo = new JLabel(new ImageIcon("src/main/resources/assets/title.png"));
         logo.setBounds(TESLauncher.WIDTH / 2 - 270 / 2, 0, 370, 270);
