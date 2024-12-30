@@ -70,14 +70,11 @@ public class Gui {
                 background.setIcon(new ImageIcon(imagePaths[currentIndex[0]]));
                 currentIndex[0] = (currentIndex[0] + 1) % imagePaths.length;
             }
-        }, 0, 3000); // Cambia cada 3 segundos
-
-        JLabel logo = new JLabel(new ImageIcon("src/main/resources/assets/title.png"));
-        logo.setBounds(TESLauncher.WIDTH / 2 - 270 / 2, 0, 370, 270);
+        }, 0, 4000); // Cambia cada 4 segundos
 
         JPanel bar = new JPanel();
         bar.setBackground(new Color(30, 30, 30));
-        bar.setBounds(0, 484, 960, 56);
+        bar.setBounds(0, 540, 960, 56);
 
         JLabel label = new JLabel();
         label.setBounds(20, 415, 200, 100);
@@ -96,9 +93,9 @@ public class Gui {
         this.frame.add(this.accountButton);
         this.frame.add(this.getInfoButton());
         this.frame.add(this.slider);
+        this.frame.add(this.getTextLabel());
         this.frame.add(label);
         this.frame.add(bar);
-        this.frame.add(logo);
         this.frame.add(background);
 
         this.frame.getContentPane().setPreferredSize(new Dimension(TESLauncher.WIDTH, TESLauncher.HEIGHT));
@@ -164,6 +161,25 @@ public class Gui {
         });
 
         return playButton;
+    }
+
+
+    private JLabel getTextLabel() {
+        JLabel textLabel = new JLabel("screaminglab.org");
+        int width = 174;
+        int height = 20;
+
+        textLabel.setFont(new Font("Arial", Font.BOLD, 10));
+        textLabel.setForeground(Color.WHITE);
+        textLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        textLabel.setBounds(
+                TESLauncher.WIDTH / 2 - width / 2,
+                484 - 36 / 2 + 36 + 5, // Position below the play button
+                width,
+                height
+        );
+
+        return textLabel;
     }
 
 
