@@ -37,6 +37,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.awt.Desktop;
+import java.net.URI;
 
 public class Gui {
     private final JFrame frame;
@@ -106,8 +108,8 @@ public class Gui {
 
     private JButton getPlayButton() {
         JButton playButton = new JButton();
-        int height = 36;
-        int width = 174;
+        int height = 32;
+        int width = 190;
 
         // Reduce la opacidad del botón
         float defaultOpacity = 0.0f;
@@ -288,6 +290,15 @@ public class Gui {
             @Override
             public void mouseExited(MouseEvent e) {
                 infoButton.setBackground(new Color(0, 0, 0, (int)(defaultOpacity * 255)));
+            }
+        });
+
+        // Agregar funcionalidad para abrir una URL
+        infoButton.addActionListener(e -> {
+            try {
+                Desktop.getDesktop().browse(new URI("http://screaminglab.org"));
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
         });
 
